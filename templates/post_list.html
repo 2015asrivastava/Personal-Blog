@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block head_title %}
+    {{ title }}
+{% endblock %}
+{% block content %}
+
+ <div class="container">
+<div class="col-sm-8 col-sm-offset-1">
+{% if no_search %}
+     <h3>   {{ no_search }}</h3>
+    {% endif %}
+{% if messages %}
+
+    {% for message in messages %}
+     <div class="alert alert-success fade in" role="alert">
+		  <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">x</span></button>
+			{{message}}
+		  </div>
+    {% endfor %}
+
+{% endif %}
+</div>
+</div>
+<div class="container">
+{% if title.title%}
+<div style="text-align:center;">
+<h4><u>CATEGORY</u></h4>
+<h2>{{title}}</h2>
+</div>
+{%endif%}
+{%if header%}
+<div style="text-align:center;">
+<h2>{{header}}</h2>
+</div>
+{%endif%}
+      <div class="row" style="margin-top:50px;">
+    {% for obj in object_list %}
+       
+  <div class="col-xs-5 ">
+    <div class="thumbnail">
+	{%if obj.title%}
+	<div style="font-size:20px;font-weight: bold;text-align:left; margin-top:30;margin-bottom:30;margin-left:30" class=""><h3><a href='{{ obj.get_absolute_urls }}' style="color:#000000;"><u>{{ obj.title}}</u></a></h3> </div>
+    {%else%} 
+	<div style="font-size:20px;font-weight: bold;text-align:left; margin-top:30;margin-bottom:30;margin-left:30" class=""><h3><a href='{{ obj.get_absolute_urls }}' style="color:#000000;">{{title}}</a> </h3></div>
+    {%endif%}
+ {% if obj.image %}
+    <img src="{{ obj.image.url }}" class="img-responsive" />
+    {% endif %}
+    <div class="caption">
+    {% if obj.draft %}<h3><span style="color:red">Draft</span></h3>{% endif %}
+	{%if not header%}
+        <small> {% if obj.draft %}<p>{{ obj.publish}}</p>{% else %} <p style="font-size:-10px;font-weight: bold;">Posted-{{ obj.timestamp }}</p>{% endif %} </small></h3>
+     {%endif%}   
+		{% if obj.user.get_full_name %}
+            <p ><b>By: {{ obj.user.get_full_name }}</b></p>
+            {% endif %}
+   
+      <div class="post-detail-item" style="text-align:left;font-size:17px">  {{ obj.get_markdown | truncatechars_html:200 }}</div>
+	  {% if not header%}
+        <p><a href="{{ obj.get_absolute_urls }}" class="btn btn-primary" role="button">View</a></p>
+	 {%endif%}	
+      </div>
+    </div>
+  </div>
+  
+
+{% endfor %}
+</div>
+
+    <div class="pagination">
+    <span class="step-links">
+        {% if object_list.has_previous %}
+            <a href="?page={{ object_list.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">previous</a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ object_list.number }} of {{ object_list.paginator.num_pages }}.
+        </span>
+
+        {% if object_list.has_next %}
+            <a href="?page={{ object_list.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">next</a>
+        {% endif %}
+    </span>
+</div>
+
+</div>
+
+
+{% endblock %}

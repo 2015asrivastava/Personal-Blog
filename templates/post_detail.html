@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags%}
+{% block head_title %}
+    {{ instance.title }}
+{% endblock %}
+
+{% block content %}
+<div class="container" >
+    <div class="col-sm-8 " style="background-color:#ffffff;margin-top:50px;">
+    {% if messages %}
+
+    {% for message in messages %}
+     <div class="alert alert-success fade in" role="alert">
+		  <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">x</span></button>
+			{{message}}
+		  </div>
+    {% endfor %}
+
+{% endif %}
+	<h2 style="color: #777777;margin-top:50;margin-bottom:50;text-align:center;">{{ title }} <hr/></h2>
+	
+    {% if instance.image %}
+    <img src="{{ instance.image.url }}" class="img-responsive" />
+    {% endif %}
+     <strong>{% if instance.draft %}<span style="color:red" >Draft {{ instance.publish }}</span> {% else %}{{ instance.timestamp }}{% endif %} </strong>
+    {% if instance.user.get_full_name %}
+    <p><b>By:{{ instance.user.get_full_name }}</b></p>
+    {% endif %}
+    <p>
+        <div class="fb-like" data-href="{{ request.build_absolute_uri }}" data-layout="button_count" data-action="like" data-size="small" data-show-faces="true" data-share="true"></div>
+
+        </p>
+		{%if request.user.is_superuser %}
+
+	      <a href="{% url "posts:post_update" instance.slug%}"  >edit</a>
+	      <a href="{% url "posts:post_delete" instance.slug%}" onclick="return confirm('Are you sure you want to delete this?')">delete</a>
+            {% endif %}
+    <hr />
+	
+        {#    <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}">#}
+{#        </p>#}
+{#        <p>#}
+{#Facebook#}
+{#</a>#}
+{#    <a href="https://twitter.com/home?status={{ share_string }}%20{{ request.build_absolute_uri }}">#}
+{#Twitter#}
+{#</a>#}
+{##}
+{#    <a href='https://plus.google.com/share?url={{ request.build_absolute_uri }}'>Google+</a>#}
+{#        <a href="https://www.linkedin.com/shareArticle?mini=true&url={{ request.build_absolute_uri }}/&title={{ instance.title }}&summary={{ share_string }}&source={{ request.build_absolute_uri }}">#}
+{#Linkedin#}
+{#</a>#}
+
+  <div class="row" >
+
+    <div class="col-sm-12 ">
+        <div class="post-detail-item">
+		<div class="text-justify" style="font-size:17px" >
+  {{ instance.get_markdown }}<br />
+              <hr />
+            
+			</div>
+         </div>
+         <div>
+        <p class="lead">Comments</p>
+         {% if request.user.is_authenticated %}
+         <form method="POST" action=".">{% csrf_token %}
+             {{ comment_form|crispy }}
+         <input type="submit" value="Comment" class="btn btn-default">
+         </form>
+         {% else %}
+         <p>You must login to comment</p>
+         {% endif %}
+         <hr />
+        {% for comment in comments %}
+            <blockquote>
+  <p>{{ comment.content }}</p>
+  <footer> via {{ comment.user.get_full_name }} |{{ comment.timestamp| timesince }} ago |{% if comment.children %}Comment {{ comment.children.count }}{% endif %} <a class="comment-reply-btn" href="#">Reply</a></footer>
+                  <div class="comment-reply" style="display: none">
+                   {% for child_coment in comment.children %}
+                          <blockquote>
+          <p>{{child_coment.content }}</p>
+          <footer> via {{ child_coment.user }}|{{ child_coment.timestamp| timesince }} ago</footer>
+
+                        </blockquote>
+                   {% endfor %}
+                  {% if request.user.is_authenticated %}
+                    <form method="POST" action=".">{% csrf_token %}
+                     {{ comment_form|crispy }}
+                  <input type="hidden" name="parent_id" value="{{ comment.id }}">
+                 <input type="submit" value="Reply" class="btn btn-default">
+                 </form>
+                  </form>
+         {% else %}
+         <p>You must login to comment</p>
+         {% endif %}
+       </div>
+        </blockquote>
+                    <hr />
+
+                 {% endfor %}
+        </div>
+
+
+
+         </div>
+    </div>
+
+</div>
+<div class="col-md-3" style="margin-left:47px;margin-top:48px">
+ <div class="row" style="background-color:#ffffff;">
+  <div class="col-md-12 ">
+  <h3 style="color:grey;margin-left:12">Recent Posts <hr /></h3></div>
+  {% for post in posts %}
+  <div class="col-md-12" style="color:grey;margin-left:12">
+  {% if post.image %}
+  <div>
+    <img src="{{ post.image.url }}" style="width:70px;padding:5px;display:inline;border: 1px solid #ddd;" class="img-responsive" /><div > <a href='{{ post.get_absolute_urls }}' style="color:#c68078;font-size:15px"> {{post.title}}</a></div><hr /></div>
+    {% else %}
+  <a href='{{ post.get_absolute_urls }}' style="color:green;"> {{post.title}}</a><hr />
+    {%endif%}
+   </div>
+  {%endfor%}
+  <div class="col-md-12 ">
+  <h3 style="color:grey;margin-left:12">Categories <hr /></h3></div>
+   {%for category in categories%}
+   <div class="col-md-12" style="color:grey;margin-left:12">
+    <a href='{{ category.get_absolute_urls }}' style="color:#c68078;font-size:15px">{{ category.title}}<hr /></a>
+	 </div>
+   {%endfor%}
+  </div>
+  
+</div>
+</div>
+</div>
+
+
+
+
+{% endblock %}
+
+
+

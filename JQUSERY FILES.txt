@@ -1,0 +1,11 @@
+ $(".content-markdown").each(function(){
+       var content_markdowm=$(this).text()
+       console.log(content_markdowm)
+       var marked_down=marked(content_markdowm)
+       $(this).html(marked_down)
+   })
+
+ $(".post-detail-item img").each(function(){
+      $(this).addClass("img-responsive")
+
+   })
